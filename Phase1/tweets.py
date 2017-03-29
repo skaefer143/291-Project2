@@ -8,7 +8,8 @@ def main():
 
 	for status in root.findall('status'):
 		id = status.find("id").text
-		print(id + ": to be continued")
+		print(id + ":" + ET.tostring(status, "unicode"))
+
 
 filename = input("Please enter filename being used for input: ")
 file = open(filename, "r")
