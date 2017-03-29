@@ -1,7 +1,7 @@
 import subprocess
 from bsddb3 import db 
 #Get an instance of BerkeleyDB 
-database = db.DB() 
+database = db.DB()
 
 def tweetSort():
 	# With help from https://www.cyberciti.biz/faq/python-execute-unix-linux-command-examples/
@@ -12,7 +12,7 @@ def tweetSort():
 	return
 
 def indexTweets():
-	
+	database.open("mydatabase", None, db.DB_HASH, db.DB_CREATE)
 	return
 
 

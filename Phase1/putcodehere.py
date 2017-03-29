@@ -8,7 +8,6 @@ def parseTweets():
 
 	for status in root.findall('status'):
 		id = status.find("id").text
-		print(id + ":" + ET.tostring(status, "unicode"))
 		outputFile.write(id + ":" + ET.tostring(status, "unicode"))
 
 
