@@ -13,6 +13,11 @@ def XMLformatter(byteTweetXML):
 	urlString = user.find("url").text
 
 	return dateString + "\t" + textString + "\t\n" + retweetString + "\t" + nameString + "\t" + locationString + "\t" + urlString
+	
+	# Other way to print out, looks ugly though
+	# for element in root.iter():
+	# 	print(element.tag + " " + element.text, end=' ')
+	# print()
 
 
 def intersectResults(termResults):
@@ -22,7 +27,8 @@ def intersectResults(termResults):
 	print("Results:")
 	for term in termResults:
 		for results in term:
-			print("ID: " + results[0].decode("utf-8") + "\t" + XMLformatter(results[1]))
+			print("ID: " + results[0].decode("utf-8") + "\t" + XMLformatter(results[1]) +"\n")
+			#XMLformatter(results[1]) other way to print out, looks ugly though
 
 
 def searchByTerm(termQuery):
@@ -35,7 +41,6 @@ def searchByTerm(termQuery):
 		print("Term Not Found!")
 		return results
 	print("count: " + str(termsCur.count()))
-	print(tweetID)
 
 	#get tweets using tweetID
 	tweetXML = tweetsCur.set(tweetID[1])
@@ -48,7 +53,6 @@ def searchByTerm(termQuery):
 		tweetID = termsCur.next_dup()
 		if tweetID == None:
 			break
-		print(tweetID)
 
 		#get tweets using tweetID
 		tweetXML = tweetsCur.set(tweetID[1])
@@ -83,8 +87,6 @@ while True:
 	for term in userInputTerms:
 		userInputFormatted = term.split(':')
 		# get first term by splitting with ':'
-
-		print("First term: " + userInputFormatted[0])
 
 		if userInputFormatted[0] == "text":
 			termQuery = str.encode("t-"+userInputFormatted[1])
