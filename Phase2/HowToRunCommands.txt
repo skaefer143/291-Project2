@@ -1,7 +1,7 @@
 Assuming Phase1 is complete:
 
 
-Run sort.py (should sort Tweets file (currently only does this), Dates file, and Terms file)
+Run sort.py (should sort Tweets file, Dates file, and Terms file)
 
 Then, index files using perl script in terminal:
 For Tweets:
@@ -17,4 +17,5 @@ For Terms:
 ./break.pl < sortedTerms.txt >| indexedTerms.txt
 
 
-Then, run db.py (should put into a database index the Tweets file (currently only does this), Dates file, and Terms file)
+Then, run db.py (should put into a database index the Tweets file, Dates 
+file, and Terms file)
