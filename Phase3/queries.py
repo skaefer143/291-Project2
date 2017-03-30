@@ -1,6 +1,12 @@
 from bsddb3 import db 
 #Get an instance of BerkeleyDB
 
+def intersectResults(termResults):
+	#Given results for each term, intersect the results to obtain the final result
+	#termResults is a list of byte literal results, with termResults[0][0] containing the tweet ID,
+	#and termResults[0][1] containing the result
+	pass
+
 def searchByTerm(termQuery):
 	# Search by a t- n- or l- term, with termQuery already encoded as a byte literal
 	results = []
@@ -9,7 +15,7 @@ def searchByTerm(termQuery):
 	tweetID = termsCur.set(termQuery)
 	if tweetID == None:
 		print("Term Not Found!")
-		return
+		return results
 	print("count: " + str(termsCur.count()))
 	print(tweetID)
 
@@ -18,7 +24,7 @@ def searchByTerm(termQuery):
 	if tweetXML == None:
 		print("Couldn't find tweet id " + tweetID[1].decode("utf-8") + " in tweets database.")
 	else:
-		results.append(tweetXML[1].decode("utf-8"))
+		results.append([tweetXML[0], tweetXML[1]])
 
 	while True:
 		tweetID = termsCur.next_dup()
@@ -31,10 +37,10 @@ def searchByTerm(termQuery):
 		if tweetXML == None:
 			print("Couldn't find tweet id " + tweetID[1].decode("utf-8") + " in tweets database.")
 		else:
-			results.append(tweetXML[1].decode("utf-8"))
+			results.append([tweetXML[0], tweetXML[1]])
 
 	print("Results:\n" + str(results))
-	return
+	return results
 
 
 #open everything 
@@ -54,6 +60,7 @@ while True:
 	userInput = input("Please type your query: ").lower()
 
 	userInputTerms = userInput.split(' ')
+	termResults = []
 	# subqueries are separated by a ' '
 
 	for term in userInputTerms:
@@ -64,15 +71,25 @@ while True:
 
 		if userInputFormatted[0] == "text":
 			termQuery = str.encode("t-"+userInputFormatted[1])
-			searchByTerm(termQuery)
+			termResults.append(searchByTerm(termQuery))
 
-		if userInputFormatted[0] == "name":
+		elif userInputFormatted[0] == "name":
 			termQuery = str.encode("n-"+userInputFormatted[1])
-			searchByTerm(termQuery)
+			termResults.append(searchByTerm(termQuery))
 
-		if userInputFormatted[0] == "location":
+		elif userInputFormatted[0] == "location":
 			termQuery = str.encode("l-"+userInputFormatted[1])
-			searchByTerm(termQuery)
+			termResults.append(searchByTerm(termQuery))
+
+		#else:
+			#search by term with userInputFormatted[0]
+
+
+
+	intersectResults(termResults) #To find final result
+
+
+
 
 
 
