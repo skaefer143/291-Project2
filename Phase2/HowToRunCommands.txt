@@ -3,17 +3,10 @@ Assuming Phase1 is complete:
 
 Run sort.py (should sort Tweets file, Dates file, and Terms file)
 
-Then, index files using perl script in terminal:
-For Tweets:
+Then, make index files using perl script in terminal:
 
 ./break.pl < sortedTweets.txt >| indexedTweets.txt
-
-For Dates:
-
 ./break.pl < sortedDates.txt >| indexedDates.txt
-
-For Terms:
-
 ./break.pl < sortedTerms.txt >| indexedTerms.txt
 
 
