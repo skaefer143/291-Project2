@@ -1,33 +1,39 @@
 from bsddb3 import db 
 #Get an instance of BerkeleyDB
 
-def searchByTerm(userInputFormatted):
-	if userInputFormatted[0] == "text":
-		# Look for term in text
-		iter = termsCur.first()
+def searchByTerm(termQuery):
+	# Search by a t- n- or l- term, with termQuery already encoded as a byte literal
+	results = []
 
-		tweetID = termsCur.set(str.encode("t-"+userInputFormatted[1]))
+	# Look for term in text
+	tweetID = termsCur.set(termQuery)
+	if tweetID == None:
+		print("Term Not Found!")
+		return
+	print("count: " + str(termsCur.count()))
+	print(tweetID)
+
+	#get tweets using tweetID
+	tweetXML = tweetsCur.set(tweetID[1])
+	if tweetXML == None:
+		print("Couldn't find tweet id " + tweetID[1].decode("utf-8") + " in tweets database.")
+	else:
+		results.append(tweetXML[1].decode("utf-8"))
+
+	while True:
+		tweetID = termsCur.next_dup()
 		if tweetID == None:
-			print("Term Not Found!")
-			return
-		print("count: " + str(termsCur.count()))
+			break
 		print(tweetID)
-		#tweetXML = tweetsDatabase.get(tweetID)
 
-		while True:
-			tweetID = termsCur.next_dup()
-			if tweetID == None:
-				break
-			print(tweetID)
-			#tweetXML = tweetsDatabase.get(tweetID)
+		#get tweets using tweetID
+		tweetXML = tweetsCur.set(tweetID[1])
+		if tweetXML == None:
+			print("Couldn't find tweet id " + tweetID[1].decode("utf-8") + " in tweets database.")
+		else:
+			results.append(tweetXML[1].decode("utf-8"))
 
-	if userInputFormatted[0] == "name":
-		# Look for term in name
-		tweetID = termsDatabase.get("n-"+userInputFormatted[1])
-	if userInputFormatted[0] == "location":
-		# Look for term in location
-		tweetID = termsDatabase.get("l-"+userInputFormatted[1])
-
+	print("Results:\n" + str(results))
 	return
 
 
@@ -57,13 +63,16 @@ while True:
 		print("First term: " + userInputFormatted[0])
 
 		if userInputFormatted[0] == "text":
-			searchByTerm(userInputFormatted)
+			termQuery = str.encode("t-"+userInputFormatted[1])
+			searchByTerm(termQuery)
 
 		if userInputFormatted[0] == "name":
-			searchByTerm(userInputFormatted)
+			termQuery = str.encode("n-"+userInputFormatted[1])
+			searchByTerm(termQuery)
 
 		if userInputFormatted[0] == "location":
-			searchByTerm(userInputFormatted)
+			termQuery = str.encode("l-"+userInputFormatted[1])
+			searchByTerm(termQuery)
 
 
 
