@@ -5,13 +5,11 @@ def searchByTerm(userInputFormatted):
 	if userInputFormatted[0] == "text":
 		# Look for term in text
 		iter = termsCur.first()
-		while iter:
-			print(iter[0].decode("utf-8") + "\t\t" + iter[1].decode("utf-8"))
-			iter = termsCur.next()
 
-		tweetID = termsCur.get(str.encode("t-"+userInputFormatted[1]), db.DB_FIRST)
+		tweetID = termsCur.set(str.encode("t-"+userInputFormatted[1]))
 		if tweetID == None:
-			print("not found!")
+			print("Term Not Found!")
+			return
 		print("count: " + str(termsCur.count()))
 		print(tweetID)
 		#tweetXML = tweetsDatabase.get(tweetID)
@@ -19,7 +17,6 @@ def searchByTerm(userInputFormatted):
 		while True:
 			tweetID = termsCur.next_dup()
 			if tweetID == None:
-				print("not found!")
 				break
 			print(tweetID)
 			#tweetXML = tweetsDatabase.get(tweetID)
