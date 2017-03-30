@@ -1,11 +1,29 @@
 from bsddb3 import db 
 #Get an instance of BerkeleyDB
+import xml.etree.ElementTree as ET
+
+def XMLformatter(byteTweetXML):
+	root = ET.fromstring(byteTweetXML)
+	dateString = "Created on: " + root.find("created_at").text
+	textString = root.find("text").text
+	retweetString = "Retweets: " + root.find("retweet_count").text
+	user = root.find("user")
+	nameString = user.find("name").text
+	locationString = user.find("location").text
+	urlString = user.find("url").text
+
+	return dateString + "\t" + textString + "\t\n" + retweetString + "\t" + nameString + "\t" + locationString + "\t" + urlString
+
 
 def intersectResults(termResults):
 	#Given results for each term, intersect the results to obtain the final result
 	#termResults is a list of byte literal results, with termResults[0][0] containing the tweet ID,
 	#and termResults[0][1] containing the result
-	pass
+	print("Results:")
+	for term in termResults:
+		for results in term:
+			print("ID: " + results[0].decode("utf-8") + "\t" + XMLformatter(results[1]))
+
 
 def searchByTerm(termQuery):
 	# Search by a t- n- or l- term, with termQuery already encoded as a byte literal
@@ -39,7 +57,6 @@ def searchByTerm(termQuery):
 		else:
 			results.append([tweetXML[0], tweetXML[1]])
 
-	print("Results:\n" + str(results))
 	return results
 
 
