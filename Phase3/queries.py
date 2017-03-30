@@ -19,6 +19,9 @@ def XMLformatter(byteTweetXML):
 	# 	print(element.tag + " " + element.text, end=' ')
 	# print()
 
+def printResult(result):
+	print("ID: " + result[0].decode("utf-8") + "\t" + XMLformatter(result[1]) +"\n")
+	return
 
 def intersectResults(termResults):
 	#Given results for each term, intersect the results to obtain the final result
@@ -26,9 +29,9 @@ def intersectResults(termResults):
 	#and termResults[0][1] containing the result
 	print("Results:")
 	for term in termResults:
-		for results in term:
-			print("ID: " + results[0].decode("utf-8") + "\t" + XMLformatter(results[1]) +"\n")
-			#XMLformatter(results[1]) other way to print out, looks ugly though
+		for result in term:
+			printResult(result)
+			#XMLformatter(result[1]) other way to print out, looks ugly though
 
 
 def searchByTerm(termQuery):
@@ -38,10 +41,9 @@ def searchByTerm(termQuery):
 	# Look for term in text
 	tweetID = termsCur.set(termQuery)
 	if tweetID == None:
-		print("Term Not Found!")
+		#Term Not Found!
 		return results
 	print("count: " + str(termsCur.count()))
-
 	#get tweets using tweetID
 	tweetXML = tweetsCur.set(tweetID[1])
 	if tweetXML == None:
@@ -52,8 +54,8 @@ def searchByTerm(termQuery):
 	while True:
 		tweetID = termsCur.next_dup()
 		if tweetID == None:
+			#next term not found, we're done
 			break
-
 		#get tweets using tweetID
 		tweetXML = tweetsCur.set(tweetID[1])
 		if tweetXML == None:
@@ -63,6 +65,15 @@ def searchByTerm(termQuery):
 
 	return results
 
+def exitProgram():
+	#close up everything
+	tweetsCur.close()
+	termsCur.close()
+	dateCur.close()
+	tweetsDatabase.close()
+	termsDatabase.close()
+	dateDatabase.close()
+	exit()
 
 #open everything 
 tweetsDatabase = db.DB() 
@@ -100,22 +111,22 @@ while True:
 			termQuery = str.encode("l-"+userInputFormatted[1])
 			termResults.append(searchByTerm(termQuery))
 
-		#else:
-			#search by term with userInputFormatted[0]
+		elif userInputFormatted[0] == "\exit":
+			exitProgram()
+
+		else:
+			#search by everything with userInputFormatted[0]
+			#text
+			termQuery = str.encode("t-"+userInputFormatted[0])
+			termResults.append(searchByTerm(termQuery))
+			#name
+			termQuery = str.encode("n-"+userInputFormatted[0])
+			termResults.append(searchByTerm(termQuery))
+			#location
+			termQuery = str.encode("l-"+userInputFormatted[0])
+			termResults.append(searchByTerm(termQuery))
+
 
 
 
 	intersectResults(termResults) #To find final result
-
-
-
-
-
-
-#close up everything
-tweetsCur.close()
-termsCur.close()
-dateCur.close()
-tweetsDatabase.close()
-termsDatabase.close()
-dateDatabase.close()
