@@ -1,5 +1,13 @@
 #!/usr/bin/perl
 
+# ----
+# CMPUT 291 - Mini Project 2
+# Group 13 - Ken Li, Noah Kryzanowski, Storm Kaefer
+# Phase 2 - Perl script (Spit lines at :)
+# Last Change By:
+# Time Changed:
+# ----
+
 while (<STDIN>) {
   chomp;
   if (/^(.*?):(.*?)$/) {

@@ -1,3 +1,10 @@
+# CMPUT 291 - Mini Project 2
+# Group 13 - Ken Li, Noah Kryzanowski, Storm Kaefer
+# Phase 2 - Sort Phase 1 output
+# Last Change By:
+# Time Changed:
+# ----
+
 import subprocess
 
 def dateSort():

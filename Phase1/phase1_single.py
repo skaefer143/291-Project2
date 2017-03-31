@@ -1,6 +1,6 @@
 # CMPUT 291 - Mini Project 2
 # Group 13 - Ken Li, Noah Kryzanowski, Storm Kaefer
-# Phase 1
+# Phase 1 (Combined - All Manual)
 # Last Change By: Ken
 # Time Changed: March 31, 12:20 AM
 # ----
@@ -8,8 +8,8 @@ def main():
 	# Loop till file opened correctly
 	correctFile = False
 	while not correctFile:
-		# userInput = input("Enter a input file (with file extension) or 'exit' to exit: ")
-		userInput = '10000.txt' # HARDCODE ------------------------------------------------------
+		userInput = input("Enter a input file (with file extension) or 'exit' to exit: ")
+		# userInput = '10000.txt' # HARDCODE ------------------------------------------------------
 		if userInput.upper() == 'EXIT':
 			print("\nProgram exiting.\n")	
 			exit()

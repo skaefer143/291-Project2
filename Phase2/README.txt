@@ -1,14 +1,14 @@
-Assuming Phase1 is complete:
+Phase 2 Instructions:
+(Assuming Phase1 is complete)
 
+1. Run "sort.py" (Sort tweets.txt, dates.txt, terms.txt)
 
-Run sort.py (should sort Tweets file, Dates file, and Terms file)
+2. Enable perl script if not already:
+	"chmod +x "
 
-Then, make index files using perl script in terminal:
+3. Run 3 perl scripts in terminal (Prepare sorted files for indexing):
+	"perl break.pl < sortedTweets.txt >| indexedTweets.txt"
+	"perl break.pl < sortedDates.txt >| indexedDates.txt"
+	"perl break.pl < sortedTerms.txt >| indexedTerms.txt"
 
-./break.pl < sortedTweets.txt >| indexedTweets.txt
-./break.pl < sortedDates.txt >| indexedDates.txt
-./break.pl < sortedTerms.txt >| indexedTerms.txt
-
-
-Then, run db.py (should put into a database index the Tweets file, Dates 
-file, and Terms file)
+4. Run "db.py" (Create index files from indexed<FILE>.txt)
