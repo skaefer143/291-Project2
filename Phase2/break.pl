@@ -3,9 +3,11 @@
 # ----
 # CMPUT 291 - Mini Project 2
 # Group 13 - Ken Li, Noah Kryzanowski, Storm Kaefer
-# Phase 2 - Perl script (Spit lines at :)
+# Phase 2 - Perl script (Split lines at :)
 # Last Change By:
 # Time Changed:
+# ----
+# Use "perl break.pl < INPUT >| OUTPUT"
 # ----
 
 while (<STDIN>) {

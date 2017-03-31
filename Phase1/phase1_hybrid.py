@@ -1,9 +1,12 @@
 # CMPUT 291 - Mini Project 2
 # Group 13 - Ken Li, Noah Kryzanowski, Storm Kaefer
-# Phase 1 (Combined - All Manual)
+# Phase 1 (Combined - Hybrid)
 # Last Change By: Ken
 # Time Changed: March 31, 12:20 AM
 # ----
+import sys
+import xml.etree.ElementTree as ET
+
 def main():
 	# Loop till file opened correctly
 	correctFile = False
@@ -30,7 +33,6 @@ def main():
 	# Loop for each line
 	while line:
 		idFound = False
-		dateFound = False
 		termsStarted = False
 		nameStarted = False
 		locationStarted = False
@@ -60,18 +62,6 @@ def main():
 								break
 							else:
 								id += char
-
-					elif not dateFound and temp[0:12] == '<created_at>':
-						# Get Date till </created_at>
-						date = ''
-						for i in range(12, len(temp)):
-							char = temp[i]
-							# Reached </created_at>
-							if temp[i:i+13] == '</created_at>':
-								dateFound = True
-								break
-							else:
-								date += char
 
 					# Check if tag is <text> or between <text> and </text>
 					elif (termsStarted or temp[0:6] == '<text>'):
@@ -328,15 +318,22 @@ def main():
 				termsOutput.write('n-' + name + ":" + str(id) + '\n')
 			for location in locations:
 				termsOutput.write('l-' + location + ":" + str(id) + '\n')
-			
-			if line != '</statuses>\n':
-				# Writes date to dates.txt
-				datesOutput.write(date + ':' + id + '\n')
-				# Writes line to tweets.txt
-				tweetsOutput.write(id + ":" + line)
 
 		line = inputFile.readline()
 		loopCounter += 1
+
+	# ---- TWEETS AND DATES ----
+	tree = ET.parse(userInput)
+	root = tree.getroot()
+
+	for status in root.findall('status'):
+		# ---- TWEETS ----
+		id = status.find("id").text
+		tweetsOutput.write(id + ":" + ET.tostring(status, "unicode"))
+		# ---- DATES ----
+		date = status.find('created_at').text
+		datesOutput.write(date + ':' + id + '\n')
+
 
 	inputFile.close()
 	termsOutput.close()

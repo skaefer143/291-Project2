@@ -1,8 +1,12 @@
 # CMPUT 291 - Mini Project 2
 # Group 13 - Ken Li, Noah Kryzanowski, Storm Kaefer
 # Phase 2 - Create index files
-# Last Change By:
+# Last Change By: Storm
 # Time Changed:
+# ----
+# With help from https://www.cyberciti.biz/faq/python-execute-unix-linux-command-examples/
+# ----
+# Filenames must be indexedTweets.txt, indexedTerms.txt, and indexedDates.txt for program to work
 # ----
 
 import subprocess
@@ -20,13 +24,9 @@ def termsDB():
 	return
 
 def tweetDB():
-	# With help from https://www.cyberciti.biz/faq/python-execute-unix-linux-command-examples/
 	subprocess.call(["db_load", "-f", tweetsFilename, "-T", "-t", "hash", "tw.idx"])
 	# Outputs db_load command to tw.idx
 	return
-
-print("Filenames must be indexedTweets.txt, indexedTerms.txt, and indexedDates.txt for program to work.")
-print("This message will always display.")
 
 tweetsFilename = "indexedTweets.txt"
 termsFilename = "indexedTerms.txt"
@@ -34,5 +34,7 @@ dateFilename = "indexedDates.txt"
 tweetDB()
 termsDB()
 dateDB()
+
+print("--- Database Created. (This message will always display)")
 
 exit()
