@@ -8,6 +8,7 @@
 from bsddb3 import db 
 #Get an instance of BerkeleyDB
 import xml.etree.ElementTree as ET
+import re
 
 def XMLformatter(byteTweetXML):
 	root = ET.fromstring(byteTweetXML)
@@ -166,18 +167,18 @@ while True:
 			if char in ('%'):
 				partMatch += 1
 
-		# Term contains ':' and/or '<' or '>' and/or '%'
-		if ((partMatch and fullMatch) or (partMatch and rangeMatch) or (fullMatch and rangeMatch)) :
+		# Query contains more than 1 ':' and/or '<' or '>' and/or '%'
+		if (partMatch > 1 or fullMatch > 1 or rangeMatch > 1):
 			print('\nIncorrect Input "' +  term + '", Please Try Again.\n')
 			correctInput = False
 
-		# Term contains more than 1 ':' and/or '<' or '>' and/or '%'
-		elif (partMatch > 1 or fullMatch > 1 or rangeMatch > 1):
+		# Query is full match and range match
+		elif (fullMatch + rangeMatch) == 2:
 			print('\nIncorrect Input "' +  term + '", Please Try Again.\n')
 			correctInput = False
 
 		# Full Match "CONDITION:TERM"
-		elif fullMatch:
+		elif (fullMatch and not partMatch):
 			# Split query at ':'
 			userInputFormatted = term.split(':')
 
@@ -201,16 +202,16 @@ while True:
 				correctInput = False
 				continue
 
-		# Partial Match
-		elif partMatch:
+		# Partial Match "(TEXT/NAME/LOCATION):TERM%"
+		elif (fullMatch and partMatch):
 			print('\nPART MATCH\n')
 
-		# Range Match
-		elif rangeMatch:
+		# Range Match "DATE(</>):__DATE__"
+		elif (rangeMatch and (partMatch + fullMatch) == 0):
 			print('\nRANGE MATCH\n')
 
 		# All 3
-		else:
+		elif (fullMatch + partMatch + rangeMatch) == 0:
 			#search by everything with userInputFormatted[0]
 			#text
 			termQuery = str.encode("t-"+term)
@@ -221,6 +222,11 @@ while True:
 			#location
 			termQuery = str.encode("l-"+term)
 			termResults.append(searchByTerm(termQuery))
+
+		# Wrong input
+		else:
+			print('\nIncorrect Input "' +  userInputFormatted[0] + '", Please Try Again.\n')
+			correctInput = False
 
 	if correctInput:
 		intersectResults(termResults) #To find final result
