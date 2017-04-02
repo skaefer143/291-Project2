@@ -8,16 +8,34 @@
 from bsddb3 import db 
 #Get an instance of BerkeleyDB
 import xml.etree.ElementTree as ET
+# import math
 
 def XMLformatter(byteTweetXML):
 	root = ET.fromstring(byteTweetXML)
 	dateString = "Created on: " + root.find("created_at").text
+	if dateString == None:
+		dateString = ''
+
 	textString = root.find("text").text
+	if textString == None:
+		textString = ''
+
 	retweetString = "Retweets: " + root.find("retweet_count").text
+	if retweetString == None:
+		retweetString = ''
+
 	user = root.find("user")
 	nameString = user.find("name").text
+	if nameString == None:
+		nameString = ''
+
 	locationString = user.find("location").text
+	if locationString == None:
+		locationString = ''
+
 	urlString = user.find("url").text
+	if urlString == None:
+		urlString = ''
 
 	return dateString + "\t" + textString + "\t\n" + retweetString + "\t" + nameString + "\t" + locationString + "\t" + urlString
 	
@@ -34,6 +52,12 @@ def intersectResults(termResults, multipleQueries):
 	#Given results for each term, intersect the results to obtain the final result
 	#termResults is a list of byte literal results, with termResults[0][0] containing the tweet ID,
 	#and termResults[0][1] containing the result
+
+	# DEBUGGING PRINTS
+	# for queries in termResults:
+	# 	for entries in queries:
+	# 		print(entries)		
+
 	if ((len(termResults) == 1 and len(termResults[0]) == 0) or (len(termResults) == 3 and len(termResults[0]) == 0 and len(termResults[1]) == 0 and len(termResults[2]) == 0)):
 		print('\nNo results found.\n') 
 	else:
