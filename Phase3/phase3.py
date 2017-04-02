@@ -14,30 +14,30 @@ def XMLformatter(byteTweetXML):
 	root = ET.fromstring(byteTweetXML)
 	dateString = "Created on: " + root.find("created_at").text
 	if dateString == None:
-		dateString = ''
+		dateString = '-Blank-'
 
 	textString = root.find("text").text
 	if textString == None:
-		textString = ''
+		textString = '-Blank-'
 
 	retweetString = "Retweets: " + root.find("retweet_count").text
 	if retweetString == None:
-		retweetString = ''
+		retweetString = '0'
 
 	user = root.find("user")
 	nameString = user.find("name").text
 	if nameString == None:
-		nameString = ''
+		nameString = '-Blank-'
 
 	locationString = user.find("location").text
 	if locationString == None:
-		locationString = ''
+		locationString = '-Blank-'
 
 	urlString = user.find("url").text
 	if urlString == None:
-		urlString = ''
+		urlString = '-None-'
 
-	return dateString + "\t" + textString + "\t\n" + retweetString + "\t" + nameString + "\t" + locationString + "\t" + urlString
+	return dateString + "\tTweet: " + textString + "\t\n" + retweetString + "\t Name: " + nameString + "\tLocation: " + locationString + "\tLink: " + urlString
 	
 	# Other way to print out, looks ugly though
 	# for element in root.iter():
