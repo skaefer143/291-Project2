@@ -8,7 +8,6 @@
 from bsddb3 import db 
 #Get an instance of BerkeleyDB
 import xml.etree.ElementTree as ET
-import re
 
 def XMLformatter(byteTweetXML):
 	root = ET.fromstring(byteTweetXML)
@@ -31,19 +30,50 @@ def printResult(result):
 	print("ID: " + result[0].decode("utf-8") + "\t" + XMLformatter(result[1]) +"\n")
 	return
 
-def intersectResults(termResults):
+def intersectResults(termResults, multipleQueries):
 	#Given results for each term, intersect the results to obtain the final result
 	#termResults is a list of byte literal results, with termResults[0][0] containing the tweet ID,
 	#and termResults[0][1] containing the result
-	
 	if ((len(termResults) == 1 and len(termResults[0]) == 0) or (len(termResults) == 3 and len(termResults[0]) == 0 and len(termResults[1]) == 0 and len(termResults[2]) == 0)):
 		print('\nNo results found.\n') 
 	else:
-		print("\nResults:\n")
-		for term in termResults:
-			for result in term:
-				printResult(result)
-				#XMLformatter(result[1]) other way to print out, looks ugly though
+		if multipleQueries > 1:
+			# Find all ID that match all queries
+			# Calculate how many times ID is found
+			allID = {}
+			for queries in termResults:
+				for entries in queries:
+					if entries[0] in allID:
+						allID[entries[0]] += 1
+					else:
+						allID[entries[0]] = 1
+
+			# Find all ID that match number of queries
+			allIDMatching = []
+			for key in allID:
+				if allID[key] == multipleQueries:
+					allIDMatching.append(key)
+
+			if len(allIDMatching) > 0:
+				print("\nResults:\n")
+				# Print all results with duplicates
+				alreadyDisplayed = []
+				for term in termResults:
+					for result in term:
+						if result[0] in allIDMatching and result[0] not in alreadyDisplayed:
+							alreadyDisplayed.append(result[0])
+							printResult(result)
+						#XMLformatter(result[1]) other way to print out, looks ugly though
+			else:
+				print('\nNo results found.\n') 
+		else:
+			print("\nResults:\n")
+			alreadyDisplayed = []
+			for term in termResults:
+				for result in term:
+					if result[0] not in alreadyDisplayed:
+						alreadyDisplayed.append(result[0])
+						printResult(result)
 
 def searchByTerm(termQuery):
 	# Search by a t- n- or l- term, with termQuery already encoded as a byte literal
@@ -54,7 +84,7 @@ def searchByTerm(termQuery):
 	if tweetID == None:
 		#Term Not Found!
 		return results
-	#get tweets using tweetID
+	# Get tweets using tweetID
 	tweetXML = tweetsCur.set(tweetID[1])
 	if tweetXML == None:
 		print("\nCouldn't find tweet id " + tweetID[1].decode("utf-8") + " in tweets database.\n")
@@ -75,16 +105,17 @@ def searchByTerm(termQuery):
 	return results
 
 def searchByDate(dateQuery):
-	# Search by date, with termQuery already encoded as a byte literal
+	# Search by date, with dateQuery already encoded as a byte literal
 	results = []
 
-	# Look for term in text
+	# Look for date in date
 	tweetID = dateCur.set(dateQuery)
 	if tweetID == None:
 		#Date Not Found!
 		return results
 	# print("\ncount: " + str(dateCur.count()))
-	#get tweets using tweetID
+
+	# Get tweets using tweetID
 	tweetXML = tweetsCur.set(tweetID[1])
 	if tweetXML == None:
 		print("Couldn't find tweet id " + tweetID[1].decode("utf-8") + " in tweets database.")
@@ -94,9 +125,10 @@ def searchByDate(dateQuery):
 	while True:
 		tweetID = dateCur.next_dup()
 		if tweetID == None:
-			#next term not found, we're done
+			# Next term not found, we're done
 			break
-		#get tweets using tweetID
+
+		# Get tweets using tweetID
 		tweetXML = tweetsCur.set(tweetID[1])
 		if tweetXML == None:
 			print("Couldn't find tweet id " + tweetID[1].decode("utf-8") + " in tweets database.")
@@ -145,18 +177,21 @@ while True:
 			break
 
 	if not valid:
-		print('\nIncorrect Input, Please Try Again.\n')
+		print('\nIncorrect Input, Please try again.\n')
 		continue
 
 	# Check each query split by spaces
 	userInputTerms = userInput.split(' ')
 	termResults = []
 
+	multipleQueries = len(userInputTerms)
+
+	correctInput = True
+
 	for term in userInputTerms:
 		fullMatch = 0
 		partMatch = 0
 		rangeMatch = 0
-		correctInput = True
 
 		# Check each character in term
 		for char in term:
@@ -167,14 +202,14 @@ while True:
 			if char in ('%'):
 				partMatch += 1
 
-		# Query contains more than 1 ':' and/or '<' or '>' and/or '%'
+		# Term contains more than 1 ':' and/or '<' or '>' and/or '%'
 		if (partMatch > 1 or fullMatch > 1 or rangeMatch > 1):
-			print('\nIncorrect Input "' +  term + '", Please Try Again.\n')
+			print('\nIncorrect Input "' +  term + '", Please try again.\n')
 			correctInput = False
 
-		# Query is full match and range match
+		# Term is full match and range match 
 		elif (fullMatch + rangeMatch) == 2:
-			print('\nIncorrect Input "' +  term + '", Please Try Again.\n')
+			print('\nIncorrect Input "' +  term + '", Please try again.\n')
 			correctInput = False
 
 		# Full Match "CONDITION:TERM"
@@ -198,7 +233,7 @@ while True:
 				dateQuery = str.encode(userInputFormatted[1])
 				termResults.append(searchByDate(dateQuery))
 			else:
-				print('\nIncorrect Input "' +  userInputFormatted[0] + '", Please Try Again.\n')
+				print('\nIncorrect Input "' +  userInputFormatted[0] + '", Please try again.\n')
 				correctInput = False
 				continue
 
@@ -206,9 +241,137 @@ while True:
 		elif (fullMatch and partMatch):
 			print('\nPART MATCH\n')
 
-		# Range Match "DATE(</>):__DATE__"
+		# Range Match "DATE(</>)__DATE__"
 		elif (rangeMatch and (partMatch + fullMatch) == 0):
-			print('\nRANGE MATCH\n')
+			lessThan = False
+			greaterThan = False
+			
+			# Split query at < or >
+			for char in term:
+				if char == '<':
+					userInputFormatted = term.split('<')
+					lessThan = True
+					break
+				elif char == '>':
+					userInputFormatted = term.split('>')
+					greaterThan = True
+					break
+
+			# Can only do range search on date
+			if userInputFormatted[0] == 'date':
+				if lessThan:
+					# IGNORE THIS, TRIED TO DO BINARY SEARCH
+					# dateDBInfo = dateDatabase.stat()
+					# uniqueKeys = dateDBInfo['nkeys']
+					# middle = math.floor(uniqueKeys/2)
+
+					# Convert user input yyyy/mm/dd to yyyymmdd
+					userInput = userInputFormatted[1]
+
+					# Check if input was correct
+					if len(userInput) == 10:
+						# Convert user input to int
+						userInput = int(userInput.replace('/',''))
+
+						# Start at beginning of tree
+						current = dateCur.first()
+
+						# End of tree
+						end = False
+						if current == None:
+							end = True
+
+						# Convert current date to int(yyyymmdd)
+						date = int(current[0].decode("utf-8").replace('/',''))
+
+						temp = []
+
+						while date < userInput and not end:
+							tweetXML = tweetsCur.set(current[1])
+							if tweetXML == None:
+								print("Couldn't find tweet id " + current[1].decode("utf-8") + " in tweets database.")
+							else:
+								temp.append([tweetXML[0], tweetXML[1]])
+
+							while True:
+								current = dateCur.next_dup()
+								if current == None:
+									break
+
+								tweetXML = tweetsCur.set(current[1])
+								if tweetXML == None:
+									print("Couldn't find tweet id " + current[1].decode("utf-8") + " in tweets database.")
+								else:
+									temp.append([tweetXML[0], tweetXML[1]])
+
+							# Get next date
+							current = dateCur.next()
+							if current == None:
+								end = True
+							else:
+								date = int(current[0].decode("utf-8").replace('/',''))
+
+						termResults.append(temp)
+
+					else:
+						print('Wrong date format, Please try again.')
+
+				elif greaterThan:
+					# Convert user input yyyy/mm/dd to yyyymmdd
+					userInput = userInputFormatted[1]
+
+					# Check if input was correct
+					if len(userInput) == 10:
+						# Convert user input to int
+						userInput = int(userInput.replace('/',''))
+
+						# Start at beginning of tree
+						current = dateCur.first()
+
+						# End of tree
+						end = False
+						if current == None:
+							end = True
+
+						# Convert current date to int(yyyymmdd)
+						date = int(current[0].decode("utf-8").replace('/',''))
+
+						temp = []
+
+						while not end:
+							if date > userInput:
+								tweetXML = tweetsCur.set(current[1])
+								if tweetXML == None:
+									print("Couldn't find tweet id " + current[1].decode("utf-8") + " in tweets database.")
+								else:
+									temp.append([tweetXML[0], tweetXML[1]])
+
+								while True:
+									current = dateCur.next_dup()
+									if current == None:
+										break
+
+									tweetXML = tweetsCur.set(current[1])
+									if tweetXML == None:
+										print("Couldn't find tweet id " + current[1].decode("utf-8") + " in tweets database.")
+									else:
+										temp.append([tweetXML[0], tweetXML[1]])
+
+							# Get next date
+							current = dateCur.next()
+							if current == None:
+								end = True
+							else:
+								date = int(current[0].decode("utf-8").replace('/',''))
+
+						termResults.append(temp)
+
+					else:
+						print('Wrong date format, Please try again.')
+			# Not date
+			else:
+				print('\nCannot do range search on "' +  userInputFormatted[0] + '". Please try again.\n')
+				correctInput = False
 
 		# All 3
 		elif (fullMatch + partMatch + rangeMatch) == 0:
@@ -225,8 +388,8 @@ while True:
 
 		# Wrong input
 		else:
-			print('\nIncorrect Input "' +  userInputFormatted[0] + '", Please Try Again.\n')
+			print('\nIncorrect Input "' +  userInputFormatted[0] + '", Please try again.\n')
 			correctInput = False
 
 	if correctInput:
-		intersectResults(termResults) #To find final result
+		intersectResults(termResults, multipleQueries) #To find final result
