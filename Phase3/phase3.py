@@ -128,6 +128,7 @@ def searchByTerm(termQuery):
 			results.append([tweetXML[0], tweetXML[1]])
 	return results
 
+<<<<<<< HEAD
 def partialSearch(partialQuery, termType):
 	# Search by a partial term, with partialQuery already encoded as a byte literal
 	results = []
@@ -172,15 +173,23 @@ def partialSearch(partialQuery, termType):
 	
 	return results
 
+=======
+>>>>>>> master
 def searchByDate(dateQuery):
 	# Search by date, with dateQuery already encoded as a byte literal
 	results = []
 
 	# Look for date in date
 	tweetID = dateCur.set(dateQuery)
+<<<<<<< HEAD
 	#if tweetID == None:
 		#Date Not Found!
 		#return results
+=======
+	if tweetID == None:
+		#Date Not Found!
+		return results
+>>>>>>> master
 	# print("\ncount: " + str(dateCur.count()))
 
 	# Get tweets using tweetID
@@ -483,7 +492,7 @@ while True:
 
 		# Wrong input
 		else:
-			print('\nIncorrect Input "' +  userInput + '", Please try again.\n')
+			print('\nIncorrect Input "' +  userInputFormatted[0] + '", Please try again.\n')
 			correctInput = False
 
 	if correctInput:
