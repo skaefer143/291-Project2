@@ -49,6 +49,13 @@ def intersectResults(termResults, multipleQueries):
 	#Given results for each term, intersect the results to obtain the final result
 	#termResults is a list of byte literal results, with termResults[0][0] containing the tweet ID,
 	#and termResults[0][1] containing the result	
+	for i in range(len(termResults)):
+		query = termResults[i]
+		temp = []
+		for ID in query:
+			if ID not in temp:
+				temp.append(ID)
+		termResults[i] = temp
 
 	if ((len(termResults) == 1 and len(termResults[0]) == 0) or (len(termResults) == 3 and len(termResults[0]) == 0 and len(termResults[1]) == 0 and len(termResults[2]) == 0)):
 		print('\nNo results found.\n') 
