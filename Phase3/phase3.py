@@ -8,7 +8,6 @@
 from bsddb3 import db 
 #Get an instance of BerkeleyDB
 import xml.etree.ElementTree as ET
-import re
 # import math
 
 def XMLformatter(byteTweetXML):
@@ -129,7 +128,7 @@ def searchByTerm(termQuery):
 			results.append([tweetXML[0], tweetXML[1]])
 	return results
 
-def partialSearch(partialQuery):
+def partialSearch(partialQuery, termType):
 	# Search by a partial term, with partialQuery already encoded as a byte literal
 	results = []
 	resultlist = []
@@ -151,19 +150,12 @@ def partialSearch(partialQuery):
 
 	#Check for partial matches
 	for term in temp:
-		if partialQuery in term[0]:
+		if partialQuery in term[0] and termType in term[0]:
 			resultlist.append(term)
-	
-	#Get the tweets based on the termID
-	tweetXML = tweetsCur.set(resultlist[0][1])
-	if tweetXML == None:
-		print("\nCouldn't find tweet id " + term[1].decode("utf-8") + " in tweets database.\n")
-	else:
-		results.append([tweetXML[0], tweetXML[1]])
 	
 	for word in range(len(resultlist)):
 		#term = resultlist[word]
-		if term == None:
+		if word == None:
 			# Next term not found, we're done
 			break
 
@@ -174,14 +166,7 @@ def partialSearch(partialQuery):
 		else:
 			results.append([tweetXML[0], tweetXML[1]])
 	
-	# End of tree
-	
 	return results
-		#check = re.search(str(partialQuery), str(current))
-		#if check:
-		#	print('yes')
-		#else:
-		#	print('no')
 
 def searchByDate(dateQuery):
 	# Search by date, with dateQuery already encoded as a byte literal
@@ -189,9 +174,9 @@ def searchByDate(dateQuery):
 
 	# Look for date in date
 	tweetID = dateCur.set(dateQuery)
-	if tweetID == None:
+	#if tweetID == None:
 		#Date Not Found!
-		return results
+		#return results
 	# print("\ncount: " + str(dateCur.count()))
 
 	# Get tweets using tweetID
@@ -319,19 +304,22 @@ while True:
 		# Partial Match "(TEXT/NAME/LOCATION):TERM%"
 		elif (fullMatch and partMatch):
 			partialResults = []
-			print('\nPART MATCH\n')
+			#print('\nPART MATCH\n')
 			for char in term:
 				if char == '%':
 					userInputFormatted = term.split(':')
 			if userInputFormatted[0] == 'text':
 				partialQuery = str.encode(userInputFormatted[1].strip('%'))
-				termResults.append(partialSearch(partialQuery))
+				termType = str.encode('t-')
+				termResults.append(partialSearch(partialQuery, termType))
 			elif userInputFormatted[0] == 'name':
 				partialQuery = str.encode(userInputFormatted[1].strip('%'))
-				termResults.append(partialSearch(partialQuery))
+				termType = str.encode('n-')
+				termResults.append(partialSearch(partialQuery, termType))
 			elif userInputFormatted[0] == 'location':
 				partialQuery = str.encode(userInputFormatted[1].strip('%'))
-				termResults.append(partialSearch(partialQuery))
+				termType = str.encode('l-')
+				termResults.append(partialSearch(partialQuery, termType))
 			else:
 				print('\nIncorrect Input "' +  userInputFormatted[0] + '", Please try again.\n')
 				continue
@@ -339,9 +327,11 @@ while True:
 		# Partial Match "TERM%"
 		elif partMatch and not fullMatch:
 			partialResults = []
-			print('\nPART MATCH\n')
+			#print('\nPART MATCH\n')
 			partialQuery = str.encode(term.strip('%'))
-			termResults.append(partialSearch(partialQuery))
+			termType = str.encode('-')
+			termResults.append(partialSearch(partialQuery, termType))
+
 		# Range Match "DATE(</>)__DATE__"
 		elif (rangeMatch and (partMatch + fullMatch) == 0):
 			lessThan = False
