@@ -45,7 +45,10 @@ def XMLformatter(byteTweetXML):
 	# print()
 
 def printResult(result):
-	print("ID: " + result[0].decode("utf-8") + "\t" + XMLformatter(result[1]) +"\n")
+	try:
+		print("ID: " + result[0].decode("utf-8") + "\t" + XMLformatter(result[1]) +"\n")
+	except:
+		print("Could not format tweet. Tweet was: " + result)
 	return
 
 def intersectResults(termResults, multipleQueries):
