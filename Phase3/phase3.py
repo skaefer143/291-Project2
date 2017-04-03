@@ -149,8 +149,12 @@ def partialSearch(partialQuery, termType):
 		current = termsCur.next()
 
 	#Check for partial matches
+	# for term in temp:
+	# 	if partialQuery in term[0] and termType in term[0]:
+	# 		resultlist.append(term)
+
 	for term in temp:
-		if partialQuery in term[0] and termType in term[0]:
+		if term[0].decode("utf-8").find("-"+partialQuery.decode("utf-8")) >= 0 and termType in term[0]:
 			resultlist.append(term)
 	
 	for word in range(len(resultlist)):
