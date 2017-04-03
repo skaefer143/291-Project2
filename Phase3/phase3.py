@@ -38,14 +38,12 @@ def XMLformatter(byteTweetXML):
 		urlString = '-None-'
 
 	return dateString + "\tTweet: " + textString + "\t\n" + retweetString + "\t Name: " + nameString + "\tLocation: " + locationString + "\tLink: " + urlString
-	
-	# Other way to print out, looks ugly though
-	# for element in root.iter():
-	# 	print(element.tag + " " + element.text, end=' ')
-	# print()
 
 def printResult(result):
-	print("ID: " + result[0].decode("utf-8") + "\t" + XMLformatter(result[1]) +"\n")
+	try:
+		print("ID: " + result[0].decode("utf-8") + "\t" + XMLformatter(result[1]) +"\n")
+	except:
+		print("Could not format tweet. Tweet was: " + result)
 	return
 
 def intersectResults(termResults, multipleQueries):
@@ -87,7 +85,6 @@ def intersectResults(termResults, multipleQueries):
 						if result[0] in allIDMatching and result[0] not in alreadyDisplayed:
 							alreadyDisplayed.append(result[0])
 							printResult(result)
-						#XMLformatter(result[1]) other way to print out, looks ugly though
 			else:
 				print('\nNo results found.\n') 
 		else:
@@ -128,16 +125,54 @@ def searchByTerm(termQuery):
 			results.append([tweetXML[0], tweetXML[1]])
 	return results
 
+def partialSearch(partialQuery, termType):
+	# Search by a partial term, with partialQuery already encoded as a byte literal
+	results = []
+	resultlist = []
+
+	#Get start of tree
+	current = termsCur.first()
+
+	end = False
+	if current == None:
+		end = True
+
+	temp = []
+	#Appending the entire list of terms to be used to check partial
+	while not end and current != None:
+		temp.append(current)
+		current = termsCur.next()
+
+	#Check for partial matches
+	for term in temp:
+		if term[0].decode("utf-8").find("-"+partialQuery.decode("utf-8")) >= 0 and termType in term[0]:
+			resultlist.append(term)
+	
+	for word in range(len(resultlist)):
+		#term = resultlist[word]
+		if word == None:
+			# Next term not found, we're done
+			break
+
+		# Get tweets using tweetID
+		tweetXML = tweetsCur.set(resultlist[word][1])
+		if tweetXML == None:
+			print("Couldn't find tweet id " + term[1].decode("utf-8") + " in tweets database.")
+		else:
+			results.append([tweetXML[0], tweetXML[1]])
+	
+	return results
+
 def searchByDate(dateQuery):
 	# Search by date, with dateQuery already encoded as a byte literal
 	results = []
 
 	# Look for date in date
 	tweetID = dateCur.set(dateQuery)
+
 	if tweetID == None:
 		#Date Not Found!
 		return results
-	# print("\ncount: " + str(dateCur.count()))
 
 	# Get tweets using tweetID
 	tweetXML = tweetsCur.set(tweetID[1])
@@ -263,7 +298,34 @@ while True:
 
 		# Partial Match "(TEXT/NAME/LOCATION):TERM%"
 		elif (fullMatch and partMatch):
-			print('\nPART MATCH\n')
+			partialResults = []
+			#print('\nPART MATCH\n')
+			for char in term:
+				if char == '%':
+					userInputFormatted = term.split(':')
+			if userInputFormatted[0] == 'text':
+				partialQuery = str.encode(userInputFormatted[1].strip('%'))
+				termType = str.encode('t-')
+				termResults.append(partialSearch(partialQuery, termType))
+			elif userInputFormatted[0] == 'name':
+				partialQuery = str.encode(userInputFormatted[1].strip('%'))
+				termType = str.encode('n-')
+				termResults.append(partialSearch(partialQuery, termType))
+			elif userInputFormatted[0] == 'location':
+				partialQuery = str.encode(userInputFormatted[1].strip('%'))
+				termType = str.encode('l-')
+				termResults.append(partialSearch(partialQuery, termType))
+			else:
+				print('\nIncorrect Input "' +  userInputFormatted[0] + '", Please try again.\n')
+				continue
+
+		# Partial Match "TERM%"
+		elif partMatch and not fullMatch:
+			partialResults = []
+			#print('\nPART MATCH\n')
+			partialQuery = str.encode(term.strip('%'))
+			termType = str.encode('-')
+			termResults.append(partialSearch(partialQuery, termType))
 
 		# Range Match "DATE(</>)__DATE__"
 		elif (rangeMatch and (partMatch + fullMatch) == 0):
@@ -284,11 +346,6 @@ while True:
 			# Can only do range search on date
 			if userInputFormatted[0] == 'date':
 				if lessThan:
-					# IGNORE THIS, TRIED TO DO BINARY SEARCH
-					# dateDBInfo = dateDatabase.stat()
-					# uniqueKeys = dateDBInfo['nkeys']
-					# middle = math.floor(uniqueKeys/2)
-
 					# Convert user input yyyy/mm/dd to yyyymmdd
 					userInput = userInputFormatted[1]
 
