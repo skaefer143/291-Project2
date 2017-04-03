@@ -8,7 +8,6 @@
 from bsddb3 import db 
 #Get an instance of BerkeleyDB
 import xml.etree.ElementTree as ET
-# import math
 
 def XMLformatter(byteTweetXML):
 	root = ET.fromstring(byteTweetXML)
@@ -49,12 +48,7 @@ def printResult(result):
 def intersectResults(termResults, multipleQueries):
 	#Given results for each term, intersect the results to obtain the final result
 	#termResults is a list of byte literal results, with termResults[0][0] containing the tweet ID,
-	#and termResults[0][1] containing the result
-
-	# DEBUGGING PRINTS
-	# for queries in termResults:
-	# 	for entries in queries:
-	# 		print(entries)		
+	#and termResults[0][1] containing the result	
 
 	if ((len(termResults) == 1 and len(termResults[0]) == 0) or (len(termResults) == 3 and len(termResults[0]) == 0 and len(termResults[1]) == 0 and len(termResults[2]) == 0)):
 		print('\nNo results found.\n') 
@@ -240,7 +234,7 @@ while True:
 		continue
 
 	# Check each query split by spaces
-	userInputTerms = userInput.split(' ')
+	userInputTerms = userInput.split()
 	termResults = []
 
 	multipleQueries = len(userInputTerms)
