@@ -38,11 +38,6 @@ def XMLformatter(byteTweetXML):
 		urlString = '-None-'
 
 	return dateString + "\tTweet: " + textString + "\t\n" + retweetString + "\t Name: " + nameString + "\tLocation: " + locationString + "\tLink: " + urlString
-	
-	# Other way to print out, looks ugly though
-	# for element in root.iter():
-	# 	print(element.tag + " " + element.text, end=' ')
-	# print()
 
 def printResult(result):
 	try:
@@ -90,7 +85,6 @@ def intersectResults(termResults, multipleQueries):
 						if result[0] in allIDMatching and result[0] not in alreadyDisplayed:
 							alreadyDisplayed.append(result[0])
 							printResult(result)
-						#XMLformatter(result[1]) other way to print out, looks ugly though
 			else:
 				print('\nNo results found.\n') 
 		else:
@@ -135,8 +129,6 @@ def partialSearch(partialQuery, termType):
 	# Search by a partial term, with partialQuery already encoded as a byte literal
 	results = []
 	resultlist = []
-	#partialQuery = partialQuery.strip('%')
-	#print(partialQuery)
 
 	#Get start of tree
 	current = termsCur.first()
@@ -152,10 +144,6 @@ def partialSearch(partialQuery, termType):
 		current = termsCur.next()
 
 	#Check for partial matches
-	# for term in temp:
-	# 	if partialQuery in term[0] and termType in term[0]:
-	# 		resultlist.append(term)
-
 	for term in temp:
 		if term[0].decode("utf-8").find("-"+partialQuery.decode("utf-8")) >= 0 and termType in term[0]:
 			resultlist.append(term)
@@ -185,8 +173,6 @@ def searchByDate(dateQuery):
 	if tweetID == None:
 		#Date Not Found!
 		return results
-
-	# print("\ncount: " + str(dateCur.count()))
 
 	# Get tweets using tweetID
 	tweetXML = tweetsCur.set(tweetID[1])
@@ -360,11 +346,6 @@ while True:
 			# Can only do range search on date
 			if userInputFormatted[0] == 'date':
 				if lessThan:
-					# IGNORE THIS, TRIED TO DO BINARY SEARCH
-					# dateDBInfo = dateDatabase.stat()
-					# uniqueKeys = dateDBInfo['nkeys']
-					# middle = math.floor(uniqueKeys/2)
-
 					# Convert user input yyyy/mm/dd to yyyymmdd
 					userInput = userInputFormatted[1]
 
